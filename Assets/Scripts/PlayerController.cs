@@ -1,36 +1,73 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
     Rigidbody2D rb2d;
-    [SerializeField] float torqueAmount = 1f;
+    [SerializeField] float torqueAmount = 15f;
     [SerializeField] float boostRate = 0.1f;
     SurfaceEffector2D surfaceEffector2D;
 
+    bool faceForward = true;
     [SerializeField] GameObject currentObj;
 
+    bool canMove = true;
     // Start is called before the first frame update
     void Start()
     {
+
         rb2d = GetComponent<Rigidbody2D>();
         surfaceEffector2D = currentObj.GetComponent<SurfaceEffector2D>();
     }
+    void FixedUpdate() {
+        if(canMove){
+            RotatePlayer();
+            RespondeToBoost();
+        }
+    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        RotatePlayer();
-        RespondeToBoost();
+    public void DisableControls(){
+        canMove = false;
     }
 
     void RespondeToBoost()
     {
         if(Input.GetKey(KeyCode.DownArrow)){
             surfaceEffector2D.speed-=boostRate;
-            transform.rotation = transform.rotation + new Quaternion (0,65,0);
+            if(faceForward && rb2d.velocity.x > 0){
+                Vector3 newEulerAngles = transform.eulerAngles;
+                newEulerAngles.x = 0;
+                newEulerAngles.y = 45;
+                transform.eulerAngles = newEulerAngles;
+                faceForward = false;
+            }
+            else if (!faceForward && rb2d.velocity.x < 0){
+                Vector3 newEulerAngles = transform.eulerAngles;
+                newEulerAngles.x = 0;
+                newEulerAngles.y = 0;
+                transform.eulerAngles = newEulerAngles;
+                faceForward = true;
+            }
+        }
+        else if (Input.GetKey(KeyCode.UpArrow)){
+            surfaceEffector2D.speed+=boostRate;
+            if(!faceForward && rb2d.velocity.x > 0){
+                Vector3 newEulerAngles = transform.eulerAngles;
+                newEulerAngles.x = 0;
+                newEulerAngles.y = 0;
+                transform.eulerAngles = newEulerAngles;
+                faceForward = true;
+            }
+            else if (faceForward && rb2d.velocity.x < 0){
+                Vector3 newEulerAngles = transform.eulerAngles;
+                newEulerAngles.x = 0;
+                newEulerAngles.y = 45;
+                transform.eulerAngles = newEulerAngles;
+                faceForward = false;
+            }
         }
     }
 
