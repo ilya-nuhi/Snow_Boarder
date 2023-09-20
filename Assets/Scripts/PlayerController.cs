@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -27,6 +28,12 @@ public class PlayerController : MonoBehaviour
             RotatePlayer();
             RespondeToBoost();
         }
+    }
+
+    void Update() {
+        if(Input.GetKeyDown(KeyCode.R)){
+            SceneManager.LoadScene(1);
+        }    
     }
 
     public void DisableControls(){
